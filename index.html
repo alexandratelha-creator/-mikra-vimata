@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Μικρά Βήματα</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#f3f4f6;color:#111827}
+.app{max-width:520px;margin:auto;min-height:100vh;background:white;padding:22px 18px 34px}
+h1{font-size:30px;margin:4px 0 6px}.sub{color:#6b7280;margin:0 0 20px}
+.card{background:#f9fafb;border-radius:22px;padding:20px;margin:14px 0;border:1px solid #e5e7eb}
+button{border:0;border-radius:16px;padding:15px 18px;font-size:17px;font-weight:700;width:100%;cursor:pointer;background:#111827;color:white}
+button.secondary{background:#e5e7eb;color:#111827}.row{display:flex;gap:10px}.row button{flex:1}
+.badge{display:inline-block;padding:7px 11px;border-radius:999px;background:#e5e7eb;font-size:13px;font-weight:700}
+.exercise{font-size:27px;font-weight:800;margin:12px 0 5px}.timer{font-size:64px;font-weight:800;text-align:center;margin:18px 0;font-variant-numeric:tabular-nums}
+.small{font-size:14px;color:#6b7280;line-height:1.5}.hidden{display:none}
+.progress{height:10px;background:#e5e7eb;border-radius:20px;overflow:hidden}.bar{height:100%;width:0;background:#111827;transition:.25s}
+li{margin:10px 0}.done{font-weight:700}
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="home">
+    <h1>Μικρά Βήματα 🏃</h1>
+    <p class="sub">Ένα απλό πρόγραμμα για να ξεκινήσεις με ασφάλεια.</p>
+    <div class="card">
+      <span class="badge">3 φορές την εβδομάδα</span>
+      <h2>Σημερινή προπόνηση</h2>
+      <p>Περίπου 20–25 λεπτά, χωρίς βάρη.</p>
+      <button onclick="startWorkout()">Ξεκίνα</button>
+    </div>
+    <div class="card">
+      <h2>Το πρόγραμμα</h2>
+      <ul>
+        <li>🔥 Ζέσταμα — 5 λεπτά</li>
+        <li>🦵 Καθίσματα — 10–12</li>
+        <li>🍑 Γέφυρες γλουτών — 12–15</li>
+        <li>💪 Push-ups στον τοίχο — 10–12</li>
+        <li>🪜 Step-ups — 8–10 κάθε πόδι</li>
+        <li>🐦 Bird-dog — 8 κάθε πλευρά</li>
+        <li>🧘 Plank στα γόνατα — 15–20″</li>
+      </ul>
+      <p class="small">Κάνε 2 γύρους. Ξεκουράσου 30–60″ ανάμεσα στις ασκήσεις και περίπου 2′ ανάμεσα στους γύρους.</p>
+    </div>
+    <div class="card">
+      <h2>Πρόοδος</h2>
+      <p id="progressText">Ολοκληρωμένες προπονήσεις: 0</p>
+      <div class="progress"><div id="progressBar" class="bar"></div></div>
+    </div>
+  </div>
+
+  <div id="workout" class="hidden">
+    <span class="badge" id="stepLabel">Ζέσταμα</span>
+    <div class="exercise" id="exerciseName">Περπάτημα επιτόπου</div>
+    <p id="instruction" class="sub">Περπάτα χαλαρά επιτόπου.</p>
+    <div class="timer" id="timer">60</div>
+    <div class="row">
+      <button class="secondary" onclick="pauseTimer()" id="pauseBtn">Παύση</button>
+      <button onclick="nextExercise()">Επόμενο</button>
+    </div>
+    <p class="small" style="margin-top:16px">Αν πονέσεις ή ζαλιστείς, σταμάτα. Δεν χρειάζεται να πιέζεσαι.</p>
+  </div>
+
+  <div id="finish" class="hidden">
+    <div class="card" style="text-align:center">
+      <div style="font-size:50px">🎉</div>
+      <h1>Μπράβο!</h1>
+      <p>Ολοκλήρωσες την προπόνηση.</p>
+      <button onclick="goHome()">Πίσω στην αρχή</button>
+    </div>
+  </div>
+</div>
+<script>
+const warm=[
+ ["Ζέσταμα","Περπάτημα επιτόπου","Περπάτα χαλαρά επιτόπου.",60],
+ ["Ζέσταμα","Περιστροφές ώμων","Κάνε αργούς κύκλους με τους ώμους.",30],
+ ["Ζέσταμα","Ελαφριά καθίσματα","Μικρό εύρος κίνησης, χωρίς βιασύνη.",30],
+ ["Ζέσταμα","Περπάτημα επιτόπου","Συνέχισε λίγο πιο ζωηρά.",60],
+ ["Ζέσταμα","Ανοίγματα χεριών","Άνοιγε και κλείνε τα χέρια ήρεμα.",30],
+ ["Ζέσταμα","Περπάτημα / ήπια jumping jacks","Διάλεξε αυτό που σου είναι άνετο.",60]
+];
+const main=[
+ ["Άσκηση","Καθίσματα","10–12 επαναλήψεις. Κράτα την πλάτη άνετη και τα γόνατα προς την ίδια κατεύθυνση με τα πόδια.",35],
+ ["Διάλειμμα","Διάλειμμα","Πάρε ανάσα και πιες λίγο νερό αν χρειάζεσαι.",45],
+ ["Άσκηση","Γέφυρες γλουτών","12–15 επαναλήψεις. Ξάπλωσε ανάσκελα, λύγισε γόνατα και σήκωσε τη λεκάνη.",40],
+ ["Διάλειμμα","Διάλειμμα","Χαλάρωσε για λίγο.",45],
+ ["Άσκηση","Push-ups στον τοίχο","10–12 επαναλήψεις. Χέρια στον τοίχο και λύγισε/τέντωσε τους αγκώνες.",40],
+ ["Διάλειμμα","Διάλειμμα","Πάρε ανάσα.",45],
+ ["Άσκηση","Step-ups","8–10 κάθε πόδι. Χρησιμοποίησε μόνο χαμηλό και σταθερό σκαλοπάτι.",50],
+ ["Διάλειμμα","Διάλειμμα","Ξεκουράσου.",45],
+ ["Άσκηση","Bird-dog","8 κάθε πλευρά. Από θέση στα τέσσερα, τέντωσε αντίθετο χέρι και πόδι.",45],
+ ["Διάλειμμα","Διάλειμμα","Πάρε ανάσα.",45],
+ ["Άσκηση","Plank στα γόνατα","15–20″. Κράτα το σώμα σταθερό χωρίς να κρατάς την αναπνοή σου.",20]
+];
+let exercises=[...warm,...main,...main.slice(1),["Τέλος","Χαλάρωμα","Περπάτα αργά και κάνε ήπιες διατάσεις.",180]];
+let i=0,remaining=0,running=false,interval=null;
+function startWorkout(){document.getElementById("home").classList.add("hidden");document.getElementById("workout").classList.remove("hidden");i=0;load();}
+function load(){if(i>=exercises.length){finish();return} let e=exercises[i];document.getElementById("stepLabel").textContent=e[0];document.getElementById("exerciseName").textContent=e[1];document.getElementById("instruction").textContent=e[2];remaining=e[3];document.getElementById("timer").textContent=remaining;running=true;clearInterval(interval);interval=setInterval(tick,1000);}
+function tick(){if(!running)return;remaining--;document.getElementById("timer").textContent=remaining;if(remaining<=0)nextExercise();}
+function pauseTimer(){running=!running;document.getElementById("pauseBtn").textContent=running?"Παύση":"Συνέχεια";}
+function nextExercise(){clearInterval(interval);i++;load();}
+function finish(){clearInterval(interval);document.getElementById("workout").classList.add("hidden");document.getElementById("finish").classList.remove("hidden");let n=Number(localStorage.getItem("workouts")||0)+1;localStorage.setItem("workouts",n);updateProgress();}
+function goHome(){document.getElementById("finish").classList.add("hidden");document.getElementById("home").classList.remove("hidden");updateProgress();}
+function updateProgress(){let n=Number(localStorage.getItem("workouts")||0);document.getElementById("progressText").textContent="Ολοκληρωμένες προπονήσεις: "+n;document.getElementById("progressBar").style.width=Math.min(n/3*100,100)+"%";}
+updateProgress();
+</script>
+</body>
+</html>
